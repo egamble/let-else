@@ -15,5 +15,5 @@ expands into
   (let [bar (f2)]
     (b1)
     (b2))
-  (e))"
+  (e))
 ```
