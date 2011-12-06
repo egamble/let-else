@@ -1,4 +1,4 @@
-(ns letplus)
+(ns let-else)
 
 
 (defn- doify [body]
@@ -7,8 +7,8 @@
       1 (first body)
       (cons 'do body)))
 
-(defn- let+-expand
-  "Recursive helper function for let+. Not intended for use by itself."
+(defn- let-else-expand
+  "Recursive helper function for let-else. Not intended for use by itself."
   [bindings body]
   (if (empty? bindings)
     body
@@ -18,17 +18,18 @@
       (if (= :else name-2)
         `((if-let [~name-1 ~expr-1]
             ~(doify
-              (let+-expand bindings-2 body))
+              (let-else-expand bindings-2 body))
             ~expr-2))
         `((let [~name-1 ~expr-1]
-            ~@(let+-expand bindings-1 body)))))))
+            ~@(let-else-expand bindings-1 body)))))))
 
-(defmacro let+
+(defmacro let-else
   "Given a vector of bindings and a body, expands into nested lets.
    If a binding starts with :else, the surrounding let becomes an if-let and
    the value of the binding becomes the else expression of the if-let. E.g.
-      (let+ [foo (f1) :else (e)
-             bar (f2)]
+      (let-else
+        [foo (f1) :else (e)
+         bar (f2)]
         (b1)
         (b2))
    expands into
@@ -39,4 +40,4 @@
         (e))"
   [bindings & body]
   (doify
-   (let+-expand bindings body)))
+   (let-else-expand bindings body)))
