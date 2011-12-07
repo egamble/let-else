@@ -1,43 +1,63 @@
 (ns let-else)
 
 
-(defn- doify [body]
-  (condp = (count body)
-      0 nil
-      1 (first body)
-      (cons 'do body)))
+(defn- regularize-bindings
+  "Regularize the order of :when and :else. Supply a :when for each naked :else."
+  [bindings]
+  (let [pairs (partition 2 bindings)
+        pair-groups (partition-by (comp keyword? first) pairs)
+        pair-group-pairs (partition-all 2 pair-groups)]
 
-(defn- let-else-expand
-  "Recursive helper function for let-else. Not intended for use by itself."
-  [bindings body]
-  (if (empty? bindings)
-    body
+    (flatten
+     (map #(let [[name-pairs kwd-pairs] %]
+             (if (nil? kwd-pairs) %
+                 (let [kwds (apply hash-map (flatten kwd-pairs))]
+                   [name-pairs
+                    (cond (= 2 (count kwds))
+                          [:when (:when kwds) :else (:else kwds)]
 
-    (let [[name-1 expr-1 & bindings-1] bindings
-          [name-2 expr-2 & bindings-2] bindings-1]
-      (if (= :else name-2)
-        `((if-let [~name-1 ~expr-1]
-            ~(doify
-              (let-else-expand bindings-2 body))
-            ~expr-2))
-        `((let [~name-1 ~expr-1]
-            ~@(let-else-expand bindings-1 body)))))))
+                          (:when kwds)
+                          [:when (:when kwds)]
 
-(defmacro let-else
-  "Given a vector of bindings and a body, expands into nested lets.
-   If a binding starts with :else, the surrounding let becomes an if-let and
-   the value of the binding becomes the else expression of the if-let. E.g.
-      (let-else
-        [foo (f1) :else (e)
-         bar (f2)]
-        (b1)
-        (b2))
-   expands into
-      (if-let [foo (f1)]
-        (let [bar (f2)]
-          (b1)
-          (b2))
-        (e))"
+                          :else
+                          [:when (first (last name-pairs)) :else (:else kwds)])])))
+          pair-group-pairs))))
+
+(defmacro let?-
   [bindings & body]
-  (doify
-   (let-else-expand bindings body)))
+  (let [[bind [kwd1 expr1 & [kwd2 expr2 & more2 :as more1]]]
+        (split-with (complement #{:when})
+                    bindings)]
+    `(let [~@bind]
+       ~@(cond (= :else kwd2)
+               (if more2
+                 [`(if ~expr1
+                     (let?- [~@more2] ~@body)
+                     ~expr2)]
+                 [`(if ~expr1
+                     ~@body
+                     ~expr2)])
+
+               kwd2
+               [`(when ~expr1
+                   (let?- [~@more1] ~@body))]
+
+               kwd1
+               [`(when ~expr1 ~@body)]
+
+               :else
+               ~@body))))
+
+(defmacro let?
+  "Expands into a let, except where a binding is followed by :when <pred> or :else <else>
+   or both, in either order.
+
+   For a :when, the <pred> is evaluated after the associated binding is evaluated
+   and must be truthy to continue evaluating the rest of the bindings and the body.
+   If the <pred> is falsey, the <else> is the value of the let?, if present, or nil if not.
+
+   For an :else without a :when, if the associated binding is falsey, <else> is the value of the let?."
+  [bindings & body]
+  `(let?-
+    [~@(regularize-bindings bindings)]
+    ~@body))
