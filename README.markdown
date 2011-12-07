@@ -4,7 +4,7 @@ For a :when, the <pred> is evaluated after the associated binding is evaluated
 and must be truthy to continue evaluating the rest of the bindings and the body.
 If the <pred> is falsey, the <else> is the value of the let?, if present, or nil if not.
 
-For an :else without a :when, if the associated binding is falsey, <else> is the value of the let?."
+For an :else without a :when, if the associated binding is falsey, <else> is the value of the let?.
 
 E.g.
 
