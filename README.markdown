@@ -45,5 +45,5 @@ expands into
     (e)))
 ```
 
-The jar is available at https://clojars.org/org.clojars.egamble/let-else.
+The jar is available at https://clojars.org/egamble/let-else.
 
