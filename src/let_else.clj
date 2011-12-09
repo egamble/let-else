@@ -50,7 +50,7 @@
                [`(when ~expr1 ~@body)]
 
                :else
-               ~@body))))
+               body))))
 
 (defmacro let?
   "Expands into a let, except where a binding is followed by :when <pred> or :else <else>
