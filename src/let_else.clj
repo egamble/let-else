@@ -6,22 +6,26 @@
   [bindings]
   (let [pairs (partition 2 bindings)
         pair-groups (partition-by (comp keyword? first) pairs)
-        pair-group-pairs (partition-all 2 pair-groups)]
+        pair-group-pairs (partition-all 2 pair-groups)
 
-    (flatten
-     (map #(let [[name-pairs kwd-pairs] %]
-             (if (nil? kwd-pairs) %
-                 (let [kwds (apply hash-map (flatten kwd-pairs))]
-                   [name-pairs
-                    (cond (= 2 (count kwds))
-                          [:when (:when kwds) :else (:else kwds)]
+        regularize
+        #(let [[name-pairs kwd-pairs] %
+               flat-name-pairs (apply concat name-pairs)]
+           (if (nil? kwd-pairs) flat-name-pairs
+               (let [flat-kwd-pairs (apply concat kwd-pairs)
+                     kwds (apply hash-map flat-kwd-pairs)]
+                 (concat flat-name-pairs
+                         (cond (= 2 (count kwds))
+                               [:when (:when kwds) :else (:else kwds)]
 
-                          (:when kwds)
-                          [:when (:when kwds)]
+                               (:when kwds)
+                               [:when (:when kwds)]
 
-                          :else
-                          [:when (first (last name-pairs)) :else (:else kwds)])])))
-          pair-group-pairs))))
+                               :else
+                               [:when (first (last name-pairs)) :else (:else kwds)])))))]
+
+    (apply concat
+           (map regularize pair-group-pairs))))
 
 (defmacro let?-
   [bindings & body]
