@@ -1,2 +1,4 @@
 /lib
+pom.xml
 .lein-deps-sum
+*.jar
