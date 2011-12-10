@@ -44,3 +44,6 @@ expands into
       (b2))
     (e)))
 ```
+
+The jar is available at https://clojars.org/egamble/let-else.
+
