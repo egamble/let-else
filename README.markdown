@@ -6,43 +6,10 @@ If the _pred_ is falsey, the _else_ is the value of the `let?`, if present, or `
 
 For an `:else` without a `:when`, if the associated binding is falsey, _else_ is the value of the `let?`.
 
-E.g.
+Note that `:else` clauses are evaluated outside the scope of the associated binding, e.g:
 
 ```clojure
-(let?
-  [foo (f1) :when (w) :else (e)
-   bar (f2)]
-  (b1)
-  (b2))
-```
-expands into
-
-```clojure
-(let [foo (f1)]
-  (if (w)
-    (let [bar (f2)]
-      (b1)
-      (b2))
-    (e)))
-```
-and
-
-```clojure
-(let?
-  [foo (f1) :else (e)
-   bar (f2)]
-  (b1)
-  (b2))
-```
-expands into
-
-```clojure
-(let [foo (f1)]
-  (if foo
-    (let [bar (f2)]
-      (b1)
-      (b2))
-    (e)))
+(let [x 3] (let? [x false :else x] nil)) => 3
 ```
 
 The jar is available at https://clojars.org/egamble/let-else.
