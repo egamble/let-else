@@ -9,7 +9,10 @@ For an `:else` without a `:when`, if the associated binding is falsey, _else_ is
 Note that `:else` clauses are evaluated outside the scope of the associated binding, e.g:
 
 ```clojure
-(let [x 3] (let? [x false :else x] nil)) => 3
+(let [x 3]
+  (let? [x false :else x]
+    nil))
+=> 3
 ```
 
 The jar is available at https://clojars.org/egamble/let-else.
