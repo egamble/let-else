@@ -13,12 +13,15 @@
 
    For an :else without a :when, if the associated binding is falsey, <else> is the value of the let?.
 
-   A :delay <truthy> clause following a binding of a symbol delays evaluation of the
-   binding value until it is actually used, in case there is a possibility it won't be
-   used at all. The :delay clause may instead be specified as metadata preceding the
-   symbol, e.g. (let? [^:delay <name> <value>] <body>).
+   :delay <truthy> following a binding of a symbol (not a destructuring form)
+   delays evaluation of the binding value until it is actually used, in case there
+   is a possibility it won't be used at all.
+
+   Alternatively, :delay may be specified as metadata preceding the symbol, e.g.
+   (let? [^:delay x (foo)] ...).
 
    :delay is ignored if there is an :else with no :when on the same binding."
+
   [bindings & body]
   (let [bindings (partition 2 bindings)
         sections (partition-between (fn [[[left] [right]]]

@@ -15,5 +15,16 @@ Note that `:else` clauses are evaluated outside the scope of the associated bind
 => 3
 ```
 
+`:delay` _truthy_ following a binding of a symbol (not a destructuring form) delays
+evaluation of the binding value until it is actually used, in case there is a
+possibility it won't be used at all.
+
+Alternatively, `:delay` may be specified as metadata preceding the symbol, e.g.
+
+```clojure
+(let? [^:delay x (foo)]
+  ...)
+```
+
 The jar is available at https://clojars.org/egamble/let-else.
 
