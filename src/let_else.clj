@@ -56,13 +56,13 @@
                   (let [delay-else-sym (gensym "delay-else")]
                     `(let [~delay-else-sym (delay ~else)]
                        ~(delay-fn
-                         `(if ~when
+                         `(if (~when ~name)
                             ~body
                             (force ~delay-else-sym)))))
 
                   when
                   (delay-fn
-                   `(when ~when
+                   `(when (~when ~name)
                       ~body))
 
                   else

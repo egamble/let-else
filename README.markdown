@@ -28,3 +28,7 @@ Alternatively, `:delay` may be specified as metadata preceding the symbol, e.g.
 
 The jar is available at https://clojars.org/egamble/let-else.
 
+Update:
+
+As of version 1.0.1 the semantics of `:when` have changed. The expression after the `:when`
+must evaluate to a unary function which is applied to the associated binding.
