@@ -32,4 +32,4 @@ The jar is available at https://clojars.org/egamble/let-else.
 
 Version 1.0.1:
 
-Added a new keyword `:is`, which can only follow a symbol binding (not a destructuring form). `:is` _pred_, following the binding of `foo`, is equivalent to `:when (` _pred_ `foo)`.
+Added a new keyword `:is`, which can only follow a symbol binding (not a destructuring form). `:is <pred>`, following the binding of `foo`, is equivalent to `:when (<pred> foo)`.
