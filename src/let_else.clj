@@ -4,12 +4,12 @@
 
 
 (defmacro let?
-  "Same behavior as let, except where a binding is followed by :when <pred> or :else <else>
+  "Same behavior as let, except where a binding is followed by :when <when> or :else <else>
    or both, in either order.
 
-   For a :when, the <pred> is evaluated after the associated binding is evaluated
+   For a :when, the <when> is evaluated after the associated binding is evaluated
    and must be truthy to continue evaluating the rest of the bindings and the body.
-   If the <pred> is falsey, the <else> is the value of the let?, if present, or nil if not.
+   If the <when> is falsey, the <else> is the value of the let?, if present, or nil if not.
 
    For an :else without a :when, if the associated binding is falsey, <else> is the value of the let?.
 
@@ -20,7 +20,9 @@
    Alternatively, :delay may be specified as metadata preceding the symbol, e.g.
    (let? [^:delay x (foo)] ...).
 
-   :delay is ignored if there is an :else with no :when on the same binding."
+   :delay is ignored if there is an :else with no :when on the same binding.
+
+   :is <pred>, following the binding of a symbol foo, is equivalent to :when (<pred> foo)."
 
   [bindings & body]
   (let [bindings (partition 2 bindings)
@@ -35,7 +37,7 @@
                 opt-map (apply hash-map
                                (apply concat opts))
 
-                {:keys [when else]} opt-map
+                {:keys [when is else]} opt-map
 
                 delay? (and (symbol? name)
                             (or (:delay (meta name))
@@ -50,19 +52,30 @@
                                           ~new-body))))
                   (fn [new-body]
                     `(let [~name ~val]
-                       ~new-body)))]
+                       ~new-body)))
 
-            (cond (and when else)
+                is-expanded
+                (clojure.core/when is
+                 (if (symbol? name)
+                   `(~is ~name)
+                   (throw (Exception. ":is <pred> doesn't work with destructuring bindings; use :when <exp> instead"))))
+
+                when-is
+                (if (and when is-expanded)
+                  `(and ~when ~is-expanded)
+                  (or when is-expanded))]
+
+            (cond (and when-is else)
                   (let [delay-else-sym (gensym "delay-else")]
                     `(let [~delay-else-sym (delay ~else)]
                        ~(delay-fn
-                         `(if (~when ~name)
+                         `(if ~when-is
                             ~body
                             (force ~delay-else-sym)))))
 
-                  when
+                  when-is
                   (delay-fn
-                   `(when (~when ~name)
+                   `(when ~when-is
                       ~body))
 
                   else
