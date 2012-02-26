@@ -4,7 +4,34 @@ For a `:when`, the _when_ is evaluated after the associated binding is evaluated
 and must be truthy to continue evaluating the rest of the bindings and the body.
 If the _when_ is falsey, the _else_ is the value of the `let?`, if present, or `nil` if not.
 
+E.g., these expressions with and without let? are equivalent:
+
+```clojure
+(let? [d 0 :when (> d 0) :else "error"
+       n 3]
+  (/ n d))
+
+(let [d 0]
+  (if (> d 0)
+    (let [n 3]
+      (/ n d))
+    "error"))
+```
+
 For an `:else` without a `:when`, if the associated binding is falsey, _else_ is the value of the `let?`.
+
+E.g., these expressions are equivalent:
+
+```clojure
+(let? [a (foo) :else nil
+       b (bar) :else "error"]
+  [a b])
+
+(when-let [a (foo)]
+  (if-let [b (bar)]
+    [a b]
+    "error"))
+```
 
 Note that `:else` clauses are evaluated outside the scope of the associated binding, e.g:
 
@@ -33,3 +60,18 @@ The jar is available at https://clojars.org/egamble/let-else.
 Version 1.0.1:
 
 Added a new keyword `:is`, which can only follow a symbol binding (not a destructuring form). `:is <pred>`, following the binding of `foo`, is equivalent to `:when (<pred> foo)`.
+
+E.g., these two expressions are equivalent:
+
+```clojure
+(let? [a "foo" :is not-empty :else "error"]
+       b "bar"]
+  (str a b))
+
+(let [a "foo"]
+  (if (not-empty a)
+    (let [b "bar"]
+      (str a b)
+      "error")))
+```
+
