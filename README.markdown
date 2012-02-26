@@ -1,10 +1,12 @@
+The jar is available at https://clojars.org/egamble/let-else.
+
 The `let?` macro has the same behavior as `let`, except where a binding is followed by `:when` _when_ or `:else` _else_ or both, in either order.
 
 For a `:when`, the _when_ is evaluated after the associated binding is evaluated
 and must be truthy to continue evaluating the rest of the bindings and the body.
 If the _when_ is falsey, the _else_ is the value of the `let?`, if present, or `nil` if not.
 
-E.g., these expressions with and without let? are equivalent:
+E.g., these expressions with and without `let?` are equivalent:
 
 ```clojure
 (let? [d 0 :when (> d 0) :else "error"
@@ -52,8 +54,6 @@ Alternatively, `:delay` may be specified as metadata preceding the symbol, e.g.
 (let? [^:delay x (foo)]
   ...)
 ```
-
-The jar is available at https://clojars.org/egamble/let-else.
 
 #####Updates:
 
