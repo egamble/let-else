@@ -9,11 +9,11 @@ If the _when_ is falsey, the _else_ is the value of the `let?`, if present, or `
 E.g., these expressions with and without `let?` are equivalent:
 
 ```clojure
-(let? [d 0 :when (> d 0) :else "error"
+(let? [d 5 :when (> d 0) :else "error"
        n 3]
   (/ n d))
 
-(let [d 0]
+(let [d 5]
   (if (> d 0)
     (let [n 3]
       (/ n d))
