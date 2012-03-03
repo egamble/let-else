@@ -71,7 +71,7 @@ E.g., these two expressions are equivalent:
 (let [a "foo"]
   (if (not-empty a)
     (let [b "bar"]
-      (str a b)
-      "error")))
+      (str a b))
+    "error"))
 ```
 
