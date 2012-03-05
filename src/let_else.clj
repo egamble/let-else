@@ -39,6 +39,9 @@
 
                 {:keys [when is else]} opt-map
 
+                ;; allows :else <falsey>
+                else-exists (some #{:else} (keys opt-map))
+
                 delay? (and (symbol? name)
                             (or (:delay (meta name))
                                 (:delay opt-map)))
@@ -65,7 +68,7 @@
                   `(and ~when ~is-expanded)
                   (or when is-expanded))]
 
-            (cond (and when-is else)
+            (cond (and when-is else-exists)
                   (let [delay-else-sym (gensym "delay-else")]
                     `(let [~delay-else-sym (delay ~else)]
                        ~(delay-fn
@@ -78,7 +81,7 @@
                    `(when ~when-is
                       ~body))
 
-                  else
+                  else-exists
                   ;; no delay possible in this case
                   `(if-let [~name ~val]
                      ~body
