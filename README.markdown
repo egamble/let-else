@@ -75,3 +75,6 @@ E.g., these two expressions are equivalent:
     "error"))
 ```
 
+Version 1.0.2:
+
+Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
