@@ -2,13 +2,13 @@ The jar is available at https://clojars.org/egamble/let-else.
 
 The `let?` macro has the same behavior as `let`, except where a binding is followed by one or more of the keyword clauses described below, in any order.
 
-#### Motivation
+### Motivation
 
-I often found myself writing what amounts to a series of `let` bindings,
+I often find myself writing a series of `let` bindings,
 where some or all of the bindings have assertions associated with them that
 would stop further binding if the assertions failed. Conceptually, that pattern
 really feels like it should be a single `let` form, but in practice it
-has to be implemented with a bunch of nested `let`s, `when-let`s, `if-let`s,
+has to be implemented with a bunch of nested `lets`, `when-lets`, `if-lets`,
 etc. So `let?` allows me to write code for that pattern as the single
 `let` that it wants to be.
 
@@ -34,9 +34,9 @@ becomes:
   (f a b c d))
 ```
 
-#### Keyword clauses
+### Keyword clauses
 
-##### `:when` _when_
+#### `:when` _when_
 
 The rest of the bindings and the body are not evaluated if _when_ evaluates to falsey,
 in which case `let?` returns the value of _else_ if `:else` _else_ is present, otherwise nil.
@@ -55,7 +55,7 @@ E.g., these expressions with and without `let?` are equivalent:
     "error"))
 ```
 
-##### `:is` _pred_ and `:is-not` _pred_
+#### `:is` _pred_ and `:is-not` _pred_
 
 The rest of the bindings and the body are not evaluated if _pred_ applied to the value
 of the binding expression is falsey (for `:is`) or truthy (for `:is-not`). Works even with
@@ -79,7 +79,7 @@ E.g., these three expressions are equivalent:
     "error"))
 ```
 
-##### `:else` _else_
+#### `:else` _else_
 
 The value of _else_ is the value of the `let?` if the associated `:when` or `:is` evaluates
 to falsey, or `:is-not` evaluates to truthy.
@@ -115,7 +115,7 @@ the binding, otherwise outside, e.g.
 => 4
 ```
 
-##### `:delay` _truthy_
+#### `:delay` _truthy_
 
 A `:delay` clause following a binding of a symbol (not a destructuring form) delays
 evaluation of the binding value until it is actually used, in case there is a possibility
@@ -135,7 +135,7 @@ is equivalent to:
   ...)
 ```
 
-#### Alternatives to `:else nil`
+### Alternatives to `:else nil`
 
 The keyword clause `:else nil` with no other keyword clauses is equivalent to `when-let`.
 Some people find `:else nil` awkward, since nil is already the value of `when-let` when
@@ -143,18 +143,18 @@ the binding value is falsey. An equivalent keyword clause is `:is identity`.
 A not-quite-equivalent keyword clause is `:is-not nil?`, which distinguishes between nil
 and not-nil rather than falsey and truthy.
 
-#### Updates:
+### Updates:
 
-##### Version 1.0.1:
+#### Version 1.0.1:
 
 Added the new keyword clause `:is` _pred_.
 
-##### Version 1.0.2:
+#### Version 1.0.2:
 
 Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 
-##### Version 1.0.3:
+#### Version 1.0.3:
 
 * Added the new keyword clause `:is-not` _pred_.
-* Changed the behavior of `:else` _else_ with `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
+* Changed the behavior of `:else` _else_ in the presence of `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
 * :delay is now ignored when other keyword clauses are present.
