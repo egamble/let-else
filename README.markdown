@@ -157,4 +157,4 @@ Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 
 * Added the new keyword clause `:is-not` _pred_.
 * Changed the behavior of `:else` _else_ in the presence of `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
-* :delay is now ignored when other keyword clauses are present.
+* `:delay` is now ignored when other keyword clauses are present.
