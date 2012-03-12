@@ -1,10 +1,45 @@
 The jar is available at https://clojars.org/egamble/let-else.
 
-The `let?` macro has the same behavior as `let`, except where a binding is followed by `:when` _when_ or `:else` _else_ or both, in either order.
+The `let?` macro has the same behavior as `let`, except where a binding is followed by one or more of the keyword clauses described below, in any order.
 
-For a `:when`, the _when_ is evaluated after the associated binding is evaluated
-and must be truthy to continue evaluating the rest of the bindings and the body.
-If the _when_ is falsey, the _else_ is the value of the `let?`, if present, or `nil` if not.
+#### Motivation
+
+I often found myself writing what amounts to a series of `let` bindings,
+where some or all of the bindings have assertions associated with them that
+would stop further binding if the assertions failed. Conceptually, that pattern
+really feels like it should be a single `let` form, but in practice it
+has to be implemented with a bunch of nested `let`s, `when-let`s, `if-let`s,
+etc. So `let?` allows me to write code for that pattern as the single
+`let` that it wants to be.
+
+A contrived example:
+
+```clojure
+(when-let [a foo]
+  (let [b bar]
+    (when (even? b)
+      (let [c baz]
+        (when (> b c)
+          (let [d qux]
+            (f a b c d)))))))
+```
+
+becomes:
+
+```clojure
+(let? [a foo :else nil
+       b bar :is even?
+       c baz :when (> b c)
+       d qux]
+  (f a b c d))
+```
+
+#### Keyword clauses
+
+##### `:when` _when_
+
+The rest of the bindings and the body are not evaluated if _when_ evaluates to falsey,
+in which case `let?` returns the value of _else_ if `:else` _else_ is present, otherwise nil.
 
 E.g., these expressions with and without `let?` are equivalent:
 
@@ -20,7 +55,37 @@ E.g., these expressions with and without `let?` are equivalent:
     "error"))
 ```
 
-For an `:else` without a `:when`, if the associated binding is falsey, _else_ is the value of the `let?`.
+##### `:is` _pred_ and `:is-not` _pred_
+
+The rest of the bindings and the body are not evaluated if _pred_ applied to the value
+of the binding expression is falsey (for `:is`) or truthy (for `:is-not`). Works even with
+destructuring bindings. `:when`, `:is`, and `:is-not` can all be present on the same binding.
+
+E.g., these three expressions are equivalent:
+
+```clojure
+(let? [a "foo" :is not-empty :else "error"
+       b "bar"]
+  (str a b))
+
+(let? [a "foo" :is-not empty? :else "error"
+       b "bar"]
+  (str a b))
+
+(let [a "foo"]
+  (if (not-empty a)
+    (let [b "bar"]
+      (str a b))
+    "error"))
+```
+
+##### `:else` _else_
+
+The value of _else_ is the value of the `let?` if the associated `:when` or `:is` evaluates
+to falsey, or `:is-not` evaluates to truthy.
+
+For an `:else` without a `:when`, `:is`, or `:is-not`, if the value of the binding expression
+is falsey, _else_ is the value of the `let?`.
 
 E.g., these expressions are equivalent:
 
@@ -35,18 +100,26 @@ E.g., these expressions are equivalent:
     "error"))
 ```
 
-Note that `:else` clauses are evaluated outside the scope of the associated binding, e.g:
+With `:when`, `:is`, or `:is-not` clauses, the _else_ is evaluated inside the context of
+the binding, otherwise outside, e.g.
 
 ```clojure
-(let [x 3]
-  (let? [x false :else x]
+(let [a 4]
+  (let? [a 3 :is even? :else (str a " is not even")]
     nil))
-=> 3
+=> "3 is not even"
+
+(let [a 4]
+  (let? [a nil :else a]
+    nil))
+=> 4
 ```
 
-`:delay` _truthy_ following a binding of a symbol (not a destructuring form) delays
-evaluation of the binding value until it is actually used, in case there is a
-possibility it won't be used at all.
+##### `:delay` _truthy_
+
+A `:delay` clause following a binding of a symbol (not a destructuring form) delays
+evaluation of the binding value until it is actually used, in case there is a possibility
+it won't be used at all. `:delay` is ignored if the binding has any other keyword clauses.
 
 Alternatively, `:delay` may be specified as metadata preceding the symbol, e.g.
 
@@ -55,26 +128,33 @@ Alternatively, `:delay` may be specified as metadata preceding the symbol, e.g.
   ...)
 ```
 
-#####Updates:
-
-Version 1.0.1:
-
-Added a new keyword `:is`, which can only follow a symbol binding (not a destructuring form). `:is <pred>`, following the binding of `foo`, is equivalent to `:when (<pred> foo)`.
-
-E.g., these two expressions are equivalent:
+is equivalent to:
 
 ```clojure
-(let? [a "foo" :is not-empty :else "error"]
-       b "bar"]
-  (str a b))
-
-(let [a "foo"]
-  (if (not-empty a)
-    (let [b "bar"]
-      (str a b))
-    "error"))
+(let? [x (foo) :delay true]
+  ...)
 ```
 
-Version 1.0.2:
+#### Alternatives to `:else nil`
+
+The keyword clause `:else nil` with no other keyword clauses is equivalent to `when-let`.
+Some people find `:else nil` awkward, since nil is already the value of `when-let` when
+the binding value is falsey. An equivalent keyword clause is `:is identity`.
+A not-quite-equivalent keyword clause is `:is-not nil?`, which distinguishes between nil
+and not-nil rather than falsey and truthy.
+
+#### Updates:
+
+##### Version 1.0.1:
+
+Added the new keyword clause `:is` _pred_.
+
+##### Version 1.0.2:
 
 Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
+
+##### Version 1.0.3:
+
+* Added the new keyword clause `:is-not` _pred_.
+* Changed the behavior of `:else` _else_ with `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
+* :delay is now ignored when other keyword clauses are present.
