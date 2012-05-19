@@ -123,3 +123,6 @@
             `(do ~@body)
             (reverse sections))))
 
+(def truthy
+  "Synonym for identity. In a let? form, :is truthy is clearer than :is identity."
+  identity)

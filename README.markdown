@@ -139,7 +139,9 @@ is equivalent to:
 
 The keyword clause `:else nil` with no other keyword clauses is equivalent to `when-let`.
 Some people find `:else nil` awkward, since nil is already the value of `when-let` when
-the binding value is falsey. An equivalent keyword clause is `:is identity`.
+the binding value is falsey. An equivalent keyword clause is `:is truthy`.
+`let-else/truthy` is defined as a synonym of `clojure.core/identity`.
+
 A not-quite-equivalent keyword clause is `:is-not nil?`, which distinguishes between nil
 and not-nil rather than falsey and truthy.
 
@@ -158,3 +160,7 @@ Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 * Added the new keyword clause `:is-not` _pred_.
 * Changed the behavior of `:else` _else_ in the presence of `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
 * `:delay` is now ignored when other keyword clauses are present.
+
+#### Version 1.0.4
+
+Defined `truthy` as a synonym of `identity`, for use in the clause `:is truthy`.
