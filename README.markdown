@@ -164,3 +164,7 @@ Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 #### Version 1.0.4
 
 Defined `truthy` as a synonym of `identity`, for use in the clause `:is truthy`.
+
+#### Version 1.0.5
+
+Updated Clojure dependency to 1.5.0.
