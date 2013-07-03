@@ -1,6 +1,17 @@
 (ns let-else
-  (:use [useful.seq :only (partition-between)]
-        [clojure.tools.macro :only (symbol-macrolet)]))
+  (:require [clojure.tools.macro :refer (symbol-macrolet)]))
+
+
+(defn partition-on
+  "Applies f to each value in coll, splitting it each time f returns true.
+  Returns a lazy seq of partitions."
+  [f coll]
+  (lazy-seq
+   (when-let [s (seq coll)]
+     (let [fst (first s)
+           cf (complement f)
+           run (cons fst (take-while cf (next s)))]
+       (cons run (partition-on f (seq (drop (count run) s))))))))
 
 
 (defmacro let?
@@ -47,9 +58,8 @@
 
   [bindings & body]
   (let [bindings (partition 2 bindings)
-        sections (partition-between (fn [[[left] [right]]]
-                                      (not (keyword? right)))
-                                    bindings)
+        sections (partition-on #(not (keyword? (first %)))
+                               bindings)
 
         reduce-fn
         (fn [body section]

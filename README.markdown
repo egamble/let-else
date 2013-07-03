@@ -168,3 +168,7 @@ Defined `truthy` as a synonym of `identity`, for use in the clause `:is truthy`.
 #### Version 1.0.5
 
 Updated Clojure dependency to 1.5.0.
+
+#### Version 1.0.6
+
+Removed dependency on flatland/useful and updated Clojure dependency to 1.5.1.
