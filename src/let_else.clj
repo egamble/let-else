@@ -70,27 +70,34 @@
 
                 {:keys [when is is-not else]} opt-map
 
+                opt-keys (keys opt-map)
+
                 ;; allow :else <falsey> alone to force a conditional
-                else-exists? (some #{:else} (keys opt-map))
+                else-exists? (some #{:else} opt-keys)
 
                 temp-name (and (not (symbol? name))
-                              (or is is-not)
-                              (gensym))
+                               (or is is-not)
+                               (gensym))
+
+                when-expand
+                (clojure.core/when (some #{:when} opt-keys)
+                  (list when))
 
                 is-expand
                 (clojure.core/when is
-                                   `(~is ~(or temp-name name)))
+                  `((~is ~(or temp-name name))))
 
                 is-not-expand
                 (clojure.core/when is-not
-                                   `(not (~is-not ~(or temp-name name))))
+                  `((not (~is-not ~(or temp-name name)))))
 
                 when-is
-                (let [asserts (remove nil? [when is-expand is-not-expand])]
+                (let [asserts (concat when-expand is-expand is-not-expand)]
                   (clojure.core/when (seq asserts)
-                    (if (= 1 (count asserts))
-                      (first asserts)
-                      `(and ~@asserts))))
+                    (list
+                     (if (= 1 (count asserts))
+                       (first asserts)
+                       `(and ~@asserts)))))
 
                 bind-fn
                 (if temp-name
@@ -104,13 +111,13 @@
 
             (cond (and when-is else-exists?)
                   (bind-fn
-                   `(if ~when-is
+                   `(if ~@when-is
                       ~body
                       ~else))
 
                   when-is
                   (bind-fn
-                   `(when ~when-is
+                   `(when ~@when-is
                       ~body))
 
                   else-exists?

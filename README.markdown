@@ -172,3 +172,7 @@ Updated Clojure dependency to 1.5.0.
 #### Version 1.0.6
 
 Removed dependency on [flatland/useful](https://github.com/flatland/useful) and updated Clojure dependency to 1.5.1.
+
+#### Version 1.0.7
+
+Added unit tests. Fixed the behavior of `:when nil` which was being ignored. Updated Clojure dependency to 1.6.0.
