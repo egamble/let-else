@@ -147,13 +147,21 @@ and not-nil rather than falsey and truthy.
 
 ### Updates:
 
-#### Version 1.0.1:
+#### Version 1.0.7
 
-Added the new keyword clause `:is` _pred_.
+Added unit tests. Fixed the behavior of `:when nil` which was being ignored. Updated Clojure dependency to 1.6.0.
 
-#### Version 1.0.2:
+#### Version 1.0.6
 
-Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
+Removed dependency on [flatland/useful](https://github.com/flatland/useful) and updated Clojure dependency to 1.5.1.
+
+#### Version 1.0.5
+
+Updated Clojure dependency to 1.5.0.
+
+#### Version 1.0.4
+
+Defined `truthy` as a synonym of `identity`, for use in the clause `:is truthy`.
 
 #### Version 1.0.3:
 
@@ -161,18 +169,10 @@ Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 * Changed the behavior of `:else` _else_ in the presence of `:when`, `:is`, or `:is-not` so that _else_ is evaluated inside the context of the binding. `:else` without other keyword clauses is still evaluated outside the binding context.
 * `:delay` is now ignored when other keyword clauses are present.
 
-#### Version 1.0.4
+#### Version 1.0.2:
 
-Defined `truthy` as a synonym of `identity`, for use in the clause `:is truthy`.
+Fixed the behavior of `:else` _falsey_ which was incorrectly being ignored.
 
-#### Version 1.0.5
+#### Version 1.0.1:
 
-Updated Clojure dependency to 1.5.0.
-
-#### Version 1.0.6
-
-Removed dependency on [flatland/useful](https://github.com/flatland/useful) and updated Clojure dependency to 1.5.1.
-
-#### Version 1.0.7
-
-Added unit tests. Fixed the behavior of `:when nil` which was being ignored. Updated Clojure dependency to 1.6.0.
+Added the new keyword clause `:is` _pred_.
