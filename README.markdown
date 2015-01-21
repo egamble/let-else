@@ -145,7 +145,7 @@ the binding value is falsey. An equivalent keyword clause is `:is truthy`.
 A not-quite-equivalent keyword clause is `:is-not nil?`, which distinguishes between nil
 and not-nil rather than falsey and truthy.
 
-### Updates:
+### History
 
 #### Version 1.0.7
 
